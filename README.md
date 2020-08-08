@@ -1,5 +1,7 @@
 # Plex Hooks
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/acamilleri/go-plexhooks)](https://goreportcard.com/report/github.com/acamilleri/go-plexhooks)
+
 Library to listen [Plex Webhook Events](https://support.plex.tv/articles/115002267687-webhooks/) and execute actions.
 
 **Plex Webhooks require a Plex Pass subscription**
@@ -13,6 +15,9 @@ go get github.com/acamilleri/go-plexhooks
 
 ## Usage
 
+You can check a real world example with [myplexhooks](https://github.com/acamilleri/myplexhooks) repository.
+
+Example:
 ```golang
 package main
 
