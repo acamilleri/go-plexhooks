@@ -7,49 +7,49 @@ import (
 const (
 	// LibraryOnDeck A new item is added that appears in the user’s On Deck.
 	// A poster is also attached to this event.
-	LibraryOnDeck          Name = "library.on.deck"
+	LibraryOnDeck Name = "library.on.deck"
 
 	// LibraryNew A new item is added to a library to which the user has access.
 	// A poster is also attached to this event.
-	LibraryNew             Name = "library.new"
+	LibraryNew Name = "library.new"
 
 	// MediaPause Media playback pauses.
-	MediaPause             Name = "media.pause"
+	MediaPause Name = "media.pause"
 
 	// MediaPlay Media starts playing. An appropriate poster is attached.
-	MediaPlay              Name = "media.play"
+	MediaPlay Name = "media.play"
 
 	// MediaRate Media is rated. A poster is also attached to this event.
-	MediaRate              Name = "media.rate"
+	MediaRate Name = "media.rate"
 
 	// MediaResume Media playback resumes.
-	MediaResume            Name = "media.resume"
+	MediaResume Name = "media.resume"
 
 	// MediaScrobble Media is viewed (played past the 90% mark).
-	MediaScrobble          Name = "media.scrobble"
+	MediaScrobble Name = "media.scrobble"
 
 	// MediaStop Media playback stops.
-	MediaStop              Name = "media.stop"
+	MediaStop Name = "media.stop"
 
 	// AdminDatabaseBackup A database backup is completed successfully via Scheduled Tasks.
-	AdminDatabaseBackup    Name = "admin.database.backup"
+	AdminDatabaseBackup Name = "admin.database.backup"
 
 	// AdminDatabaseCorrupted Corruption is detected in the server database.
 	AdminDatabaseCorrupted Name = "admin.database.corrupted"
 
 	// DeviceNew A device accesses the owner’s server for any reason, which may come from
 	// background connection testing and doesn’t necessarily indicate active browsing or playback.
-	DeviceNew              Name = "device.new"
+	DeviceNew Name = "device.new"
 
 	// PlaybackStarted Playback is started by a shared user for the server.
 	// A poster is also attached to this event.
-	PlaybackStarted        Name = "playback.started"
+	PlaybackStarted Name = "playback.started"
 
 	// EpisodeMetadataType Event is related to a TV Show
 	EpisodeMetadataType = "episode"
 
 	// MovieMetadataType Event is related to a Movie
-	MovieMetadataType   = "movie"
+	MovieMetadataType = "movie"
 )
 
 // Event This contains event, user, and owner attributes.
