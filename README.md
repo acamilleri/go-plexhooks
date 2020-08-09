@@ -65,6 +65,15 @@ func main() {
 }
 ```
 
+### Metrics
+
+The Run function running a metrics handler to have some metrics about the
+events handler  and actions executed.
+
+Metrics are expose at `/metrics` path in [Prometheus](https://prometheus.io/) format.
+
+You can find all metrics [available here](metrics.go)
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
