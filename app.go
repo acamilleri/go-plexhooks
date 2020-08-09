@@ -61,11 +61,33 @@ func (a *App) handler() http.HandlerFunc {
 		}
 
 		logrus.Infof("%s event handled", event.Name)
-		err = a.actions.triggerActionsOnEvent(event)
+		err = a.triggerActionsOnEvent(event)
 		if err != nil {
 			logrus.WithError(err).Errorf("%s event actions failed", event.Name)
 		}
 	}
+}
+
+func (a *App) triggerActionsOnEvent(event plex.Event) error {
+	hookName := event.Name
+
+	actions := a.actions.GetByHook(hookName)
+	if len(actions) == 0 {
+		return fmt.Errorf("no actions registered for %s hook", hookName)
+	}
+
+	for _, action := range actions {
+		name := action.Name()
+
+		logrus.Debugf("action %s triggered", name)
+		err := action.Execute(event)
+		if err != nil {
+			logrus.WithError(err).Errorf("action %s failed", name)
+			continue
+		}
+		logrus.Infof("action %s success", name)
+	}
+	return nil
 }
 
 func parseRequest(r *http.Request) (plex.Event, error) {

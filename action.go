@@ -1,11 +1,11 @@
 package plexhooks
 
 import (
-	"fmt"
+       "fmt"
 
-	"github.com/sirupsen/logrus"
+       "github.com/sirupsen/logrus"
 
-	"github.com/acamilleri/go-plexhooks/plex"
+       "github.com/acamilleri/go-plexhooks/plex"
 )
 
 // Action generic interface to create action
@@ -31,23 +31,11 @@ func (a *Actions) Add(hook plex.Name, actions ...Action) {
 	*a = actionsList
 }
 
-func (a Actions) triggerActionsOnEvent(event plex.Event) error {
-	hookName := event.Name
-
-	if actions, ok := a[hookName]; ok {
-		for _, action := range actions {
-			name := action.Name()
-
-			logrus.Debugf("action %s triggered", name)
-			err := action.Execute(event)
-			if err != nil {
-				logrus.WithError(err).Errorf("action %s failed", name)
-				continue
-			}
-			logrus.Infof("action %s success", name)
-		}
-		return nil
+// GetByHook get actions by hook name
+func (a *Actions) GetByHook(hook plex.Name) []Action {
+	actionsList := *a
+	if actions, ok := actionsList[hook]; ok {
+		return actions
 	}
-
-	return fmt.Errorf("no actions registered for %s hook", hookName)
+	return nil
 }
