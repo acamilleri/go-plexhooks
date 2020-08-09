@@ -10,6 +10,21 @@ import (
 )
 
 var (
+	httpRequestDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Namespace: "plexhooks",
+		Subsystem: "http",
+		Name:      "request_duration_seconds",
+		Help:      "The latency of the HTTP requests.",
+		Buckets:   prometheus.DefBuckets,
+	}, []string{"handler", "method"})
+
+	httpRequestTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+		Namespace: "plexhooks",
+		Subsystem: "http",
+		Name:      "request_total",
+		Help:      "How many http requests processed, partitioned by handler, status code and http method.",
+	}, []string{"handler", "method", "code"})
+
 	eventsReceivedTotal = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: "plexhooks",
@@ -67,5 +82,32 @@ func (track *trackActionDuration) Finish() {
 	actionsDurationDuration.With(prometheus.Labels{
 		"event":  track.event,
 		"action": track.action,
+	}).Observe(duration)
+}
+
+type trackRequestDuration struct {
+	method  string
+	handler string
+
+	start time.Time
+	stop  time.Time
+}
+
+func newTrackRequestDuration(method, handler string) *trackRequestDuration {
+	return &trackRequestDuration{
+		method:  method,
+		handler: handler,
+		start:   time.Now(),
+		stop:    time.Time{},
+	}
+}
+
+func (track *trackRequestDuration) Finish() {
+	track.stop = time.Now()
+
+	duration := track.stop.Sub(track.start).Seconds()
+	httpRequestDuration.With(prometheus.Labels{
+		"method":  track.method,
+		"handler": track.handler,
 	}).Observe(duration)
 }

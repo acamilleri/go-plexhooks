@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -57,20 +59,61 @@ func (a *App) Run() error {
 
 func (a *App) handler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var statusCode int = http.StatusOK
 		defer r.Body.Close()
-		w.WriteHeader(http.StatusOK)
 
-		event, err := parseRequest(r)
-		if err != nil {
-			a.log.WithError(err).Error("failed to parse request")
+		trackRequestDuration := newTrackRequestDuration(r.Method, "/events")
+		if r.Method != http.MethodPost {
+			statusCode = http.StatusMethodNotAllowed
+			w.WriteHeader(statusCode)
+			time.Sleep(time.Second * 5)
+			httpRequestTotal.With(prometheus.Labels{
+				"handler": "/events",
+				"method":  r.Method,
+				"code":    strconv.Itoa(statusCode),
+			}).Inc()
+			trackRequestDuration.Finish()
+			return
 		}
 
-		a.log.Infof("%s event handled", event.Name)
-		err = a.triggerActionsOnEvent(event)
+		err := a.handleRequest(r)
 		if err != nil {
-			a.log.WithError(err).Errorf("%s event actions failed", event.Name)
+			statusCode = http.StatusInternalServerError
+			w.WriteHeader(statusCode)
+			trackRequestDuration.Finish()
+			httpRequestTotal.With(prometheus.Labels{
+				"handler": "/events",
+				"method":  r.Method,
+				"code":    strconv.Itoa(statusCode),
+			}).Inc()
+			return
 		}
+
+		w.WriteHeader(statusCode)
+		trackRequestDuration.Finish()
+		httpRequestTotal.With(prometheus.Labels{
+			"handler": "/events",
+			"method":  r.Method,
+			"code":    strconv.Itoa(statusCode),
+		}).Inc()
 	}
+}
+
+func (a *App) handleRequest(r *http.Request) error {
+	event, err := parseRequest(r)
+	if err != nil {
+		a.log.WithError(err).Error("failed to parse request")
+		return err
+	}
+
+	a.log.Infof("%s event handled", event.Name)
+	err = a.triggerActionsOnEvent(event)
+	if err != nil {
+		a.log.WithError(err).Errorf("%s event actions failed", event.Name)
+		return err
+	}
+
+	return nil
 }
 
 func (a *App) triggerActionsOnEvent(event plex.Event) error {
