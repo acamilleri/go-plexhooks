@@ -41,7 +41,7 @@ func (a *MyActionOnMediaPlay) Execute(event plex.Event) error {
 }
 
 func main() {
-	listenAddr, err := net.ResolveTCPAddr("tcp4", "127.0.0.1")
+	listenAddr, err := net.ResolveTCPAddr("tcp4", "127.0.0.1:8080")
 	if err != nil {
 		panic(err)
 	}
