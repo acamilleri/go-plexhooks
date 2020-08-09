@@ -6,6 +6,8 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 
 	"github.com/acamilleri/go-plexhooks/plex"
@@ -47,6 +49,7 @@ func (a *App) Run() error {
 	}
 
 	http.HandleFunc("/events", a.handler())
+	http.Handle("/metrics", promhttp.Handler())
 
 	a.log.Infof("running server on %s", a.listenAddr)
 	return http.ListenAndServe(a.listenAddr.String(), nil)
@@ -71,6 +74,7 @@ func (a *App) handler() http.HandlerFunc {
 }
 
 func (a *App) triggerActionsOnEvent(event plex.Event) error {
+	eventsReceivedTotal.With(prometheus.Labels{"event": event.Name.String()}).Inc()
 	hookName := event.Name
 
 	actions := a.actions.GetByHook(hookName)
@@ -80,15 +84,26 @@ func (a *App) triggerActionsOnEvent(event plex.Event) error {
 
 	for _, action := range actions {
 		name := action.Name()
+		actionDuration := newTrackActionDuration(event, action)
 
 		a.log.Debugf("action %s triggered", name)
 		err := action.Execute(event)
 		if err != nil {
 			a.log.WithError(err).Errorf("action %s failed", name)
+			actionsErrorTotal.With(
+				prometheus.Labels{"event": event.Name.String(), "action": action.Name()},
+			).Inc()
+			actionDuration.Finish()
 			continue
 		}
+
 		a.log.Infof("action %s success", name)
+		actionDuration.Finish()
+		actionsSuccessTotal.With(
+			prometheus.Labels{"event": event.Name.String(), "action": action.Name()},
+		).Inc()
 	}
+
 	return nil
 }
 
