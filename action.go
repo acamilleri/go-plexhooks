@@ -1,11 +1,7 @@
 package plexhooks
 
 import (
-       "fmt"
-
-       "github.com/sirupsen/logrus"
-
-       "github.com/acamilleri/go-plexhooks/plex"
+	"github.com/acamilleri/go-plexhooks/plex"
 )
 
 // Action generic interface to create action

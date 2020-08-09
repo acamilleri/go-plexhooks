@@ -8,7 +8,7 @@ type LoggerDefinition struct {
 	Formatter logrus.Formatter
 }
 
-func setupLogger(definition LoggerDefinition) {
+func setupLogger(definition LoggerDefinition) *logrus.Logger {
 	var level logrus.Level = logrus.InfoLevel
 	var formatter logrus.Formatter = &logrus.TextFormatter{}
 
@@ -17,6 +17,8 @@ func setupLogger(definition LoggerDefinition) {
 		formatter = definition.Formatter
 	}
 
-	logrus.SetLevel(level)
-	logrus.SetFormatter(formatter)
+	log := logrus.New()
+	log.SetLevel(level)
+	log.SetFormatter(formatter)
+	return log
 }
