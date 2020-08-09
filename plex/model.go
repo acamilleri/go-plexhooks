@@ -1,9 +1,5 @@
 package plex
 
-import (
-	"strings"
-)
-
 const (
 	// LibraryOnDeck A new item is added that appears in the user’s On Deck.
 	// A poster is also attached to this event.
@@ -123,7 +119,3 @@ type Metadata struct {
 
 // Name Event Name
 type Name string
-
-func (name Name) String() string {
-	return strings.ToLower(string(name))
-}
